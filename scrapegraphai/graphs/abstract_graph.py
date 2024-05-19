@@ -264,6 +264,7 @@ class AbstractGraph(ABC):
             KeyError: If the model is not supported.
         """
         print(f"embedder_config before processing: {embedder_config}")  # Debugging output
+        print(f"models_tokens dictionary: {models_tokens}")  # Debugging output
         if 'model_instance' in embedder_config:
             return embedder_config['model_instance']
         # Instantiate the embedding model based on the model name
