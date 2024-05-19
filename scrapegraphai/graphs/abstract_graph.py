@@ -291,6 +291,9 @@ class AbstractGraph(ABC):
         elif "gemini" in embedder_config["model"]:
             # Extract the actual model name by removing any prefixes or paths
             model_name = embedder_config["model"].split('/')[-1]  # Keep only the last part after '/'
+            # Debugging: Log the processed model name and available models
+            print(f"Processed model name: {model_name}")
+            print(f"Available 'gemini' models: {list(models_tokens['gemini'].keys())}")
             # Check if the processed model name is in the models_tokens dictionary
             if model_name in models_tokens["gemini"]:
                 self.model_token = models_tokens["gemini"][model_name]
@@ -299,7 +302,7 @@ class AbstractGraph(ABC):
             else:
                 # If the model name is not found, raise a ValueError with available models
                 available_models = list(models_tokens['gemini'].keys())
-                raise ValueError(f"Model '{model_name}' is not supported. Available models: {available_models}")
+                raise ValueError(f"Model '{model_name}' is not supported. Available 'gemini' models: {available_models}")
         elif "bedrock" in embedder_config["model"]:
             embedder_config["model"] = embedder_config["model"].split("/")[-1]
             client = embedder_config.get('client', None)
