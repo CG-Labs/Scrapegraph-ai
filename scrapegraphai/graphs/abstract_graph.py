@@ -145,10 +145,13 @@ class AbstractGraph(ABC):
             return AzureOpenAI(llm_params)
 
         elif "gemini" in llm_params["model"]:
+            # Extract the actual model name by removing any prefixes or paths
+            model_name = llm_params["model"].split('/')[-1]  # Keep only the last part after '/'
             try:
-                self.model_token = models_tokens["gemini"][llm_params["model"]]
+                self.model_token = models_tokens["gemini"][model_name]
             except KeyError as exc:
-                raise KeyError("Model not supported") from exc
+                available_models = list(models_tokens["gemini"].keys())
+                raise KeyError(f"Model '{model_name}' is not supported. Available models: {available_models}") from exc
             return Gemini(llm_params)
         elif llm_params["model"].startswith("claude"):
             try:
