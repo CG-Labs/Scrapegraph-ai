@@ -287,16 +287,17 @@ class AbstractGraph(ABC):
             return HuggingFaceHubEmbeddings(model=embedder_config["model"])
         elif "gemini" in embedder_config["model"]:
             model_name = embedder_config["model"]
+            # Check if the model name is exactly in the models_tokens dictionary
             if model_name in models_tokens["gemini"]:
                 self.model_token = models_tokens["gemini"][model_name]
                 return GoogleGenerativeAIEmbeddings(google_api_key=embedder_config['api_key'],
                                                     model=model_name)
             else:
+                # If the model name is not found, check for common mismatches such as prefix issues
                 available_models = list(models_tokens['gemini'].keys())
                 print(f"embedder_config after processing: {embedder_config}")  # Debugging output
                 print(f"Available 'gemini' models: {available_models}")  # Debugging output
                 print(f"Model '{model_name}' is not found in 'gemini' models_tokens. Checking for model name mismatches...")  # Additional debugging output
-                # Check for common mismatches such as prefix issues
                 for available_model in available_models:
                     if model_name.endswith(available_model):
                         print(f"Model name '{model_name}' found as '{available_model}' in 'gemini' models_tokens.")  # Additional debugging output
