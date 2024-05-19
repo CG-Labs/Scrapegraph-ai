@@ -286,6 +286,7 @@ class AbstractGraph(ABC):
         elif "gemini" in embedder_config["model"]:
             print(f"embedder_config: {embedder_config}")  # Debugging output
             print(f"models_tokens: {models_tokens}")  # Debugging output
+            print(f"Available gemini models: {list(models_tokens['gemini'].keys())}")  # Print available gemini models
             model_name = embedder_config["model"]
             print(f"Checking if model '{model_name}' is in models_tokens['gemini']: {model_name in models_tokens['gemini']}")  # Additional debugging output
             if model_name in models_tokens["gemini"]:
