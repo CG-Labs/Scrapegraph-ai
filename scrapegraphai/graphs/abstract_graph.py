@@ -284,11 +284,13 @@ class AbstractGraph(ABC):
                 raise KeyError("Model not supported")from exc
             return HuggingFaceHubEmbeddings(model=embedder_config["model"])
         elif "gemini" in embedder_config["model"]:
-            try:
-                models_tokens["gemini"][embedder_config["model"]]
-            except KeyError as exc:
-                raise KeyError("Model not supported")from exc
-            return GoogleGenerativeAIEmbeddings(model=embedder_config["model"])
+            model_name = embedder_config["model"]
+            if model_name in models_tokens["gemini"]:
+                self.model_token = models_tokens["gemini"][model_name]
+                return GoogleGenerativeAIEmbeddings(google_api_key=embedder_config['api_key'],
+                                                    model=model_name)
+            else:
+                raise ValueError(f"Model '{model_name}' is not supported. Available models: {list(models_tokens['gemini'].keys())}")
         elif "bedrock" in embedder_config["model"]:
             embedder_config["model"] = embedder_config["model"].split("/")[-1]
             client = embedder_config.get('client', None)
