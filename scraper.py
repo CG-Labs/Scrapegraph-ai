@@ -13,6 +13,9 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # Securely retrieved API key for O
 print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
 
 def scrape_url(url):
+    # Debugging: Confirming that the scrape_url function is being called
+    print(f"Starting scrape_url function for URL: {url}")
+
     with sync_playwright() as p:
         # Launch the browser in headless mode
         browser = p.chromium.launch(headless=True)
