@@ -295,6 +295,14 @@ class AbstractGraph(ABC):
                 available_models = list(models_tokens['gemini'].keys())
                 print(f"embedder_config after processing: {embedder_config}")  # Debugging output
                 print(f"Available 'gemini' models: {available_models}")  # Debugging output
+                print(f"Model '{model_name}' is not found in 'gemini' models_tokens. Checking for model name mismatches...")  # Additional debugging output
+                # Check for common mismatches such as prefix issues
+                for available_model in available_models:
+                    if model_name.endswith(available_model):
+                        print(f"Model name '{model_name}' found as '{available_model}' in 'gemini' models_tokens.")  # Additional debugging output
+                        self.model_token = models_tokens["gemini"][available_model]
+                        return GoogleGenerativeAIEmbeddings(google_api_key=embedder_config['api_key'],
+                                                            model=available_model)
                 raise ValueError(f"Model '{model_name}' is not supported. Available models: {available_models}")
         elif "bedrock" in embedder_config["model"]:
             embedder_config["model"] = embedder_config["model"].split("/")[-1]
