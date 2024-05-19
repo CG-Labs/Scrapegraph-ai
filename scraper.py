@@ -9,6 +9,9 @@ NEO4J_USER = "neo4j"  # Actual username for Neo4j
 NEO4J_PASSWORD = "neo4j12345"  # Actual password for Neo4j
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # Securely retrieved API key for OpenAI
 
+# Debugging: Print the OPENAI_API_KEY to ensure it's being retrieved correctly
+print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
+
 def scrape_url(url):
     with sync_playwright() as p:
         # Launch the browser in headless mode
