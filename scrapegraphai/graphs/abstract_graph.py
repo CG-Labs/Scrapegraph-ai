@@ -263,6 +263,7 @@ class AbstractGraph(ABC):
         Raises:
             KeyError: If the model is not supported.
         """
+        print(f"embedder_config before processing: {embedder_config}")  # Debugging output
         if 'model_instance' in embedder_config:
             return embedder_config['model_instance']
         # Instantiate the embedding model based on the model name
@@ -284,17 +285,15 @@ class AbstractGraph(ABC):
                 raise KeyError("Model not supported")from exc
             return HuggingFaceHubEmbeddings(model=embedder_config["model"])
         elif "gemini" in embedder_config["model"]:
-            print(f"embedder_config: {embedder_config}")  # Debugging output
-            print(f"models_tokens: {models_tokens}")  # Debugging output
-            print(f"Available gemini models: {list(models_tokens['gemini'].keys())}")  # Print available gemini models
             model_name = embedder_config["model"]
-            print(f"Checking if model '{model_name}' is in models_tokens['gemini']: {model_name in models_tokens['gemini']}")  # Additional debugging output
             if model_name in models_tokens["gemini"]:
                 self.model_token = models_tokens["gemini"][model_name]
                 return GoogleGenerativeAIEmbeddings(google_api_key=embedder_config['api_key'],
                                                     model=model_name)
             else:
-                raise ValueError(f"Model '{model_name}' is not supported. Available models: {list(models_tokens['gemini'].keys())}, embedder_config: {embedder_config}")
+                print(f"embedder_config after processing: {embedder_config}")  # Debugging output
+                print(f"models_tokens: {models_tokens}")  # Debugging output
+                raise ValueError(f"Model '{model_name}' is not supported. Available models: {list(models_tokens['gemini'].keys())}")
         elif "bedrock" in embedder_config["model"]:
             embedder_config["model"] = embedder_config["model"].split("/")[-1]
             client = embedder_config.get('client', None)
