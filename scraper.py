@@ -7,8 +7,7 @@ import os
 NEO4J_URI = "neo4j://localhost:7687"
 NEO4J_USER = "neo4j"  # Actual username for Neo4j
 NEO4J_PASSWORD = "neo4j12345"  # Actual password for Neo4j
-os.environ['OPENAI_API_KEY'] = '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'  # Set the OpenAI API key in the environment
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # Retrieve the API key for OpenAI from the environment
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # Securely retrieved API key for OpenAI
 
 def scrape_url(url):
     with sync_playwright() as p:

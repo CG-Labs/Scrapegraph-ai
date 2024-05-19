@@ -1,5 +1,8 @@
 import streamlit as st
 from neo4j import GraphDatabase
+import sys
+sys.path.append('/home/ubuntu/Scrapegraph-ai')  # Ensure scraper.py is findable
+from scraper import scrape_url  # Import the scrape_url function
 
 # Neo4j connection details
 NEO4J_URI = "neo4j://localhost:7687"
@@ -20,24 +23,47 @@ url_input = st.text_input("Enter the URL to scrape", "")
 
 # Button to initiate the scraping process
 if st.button("Scrape URL"):
-    # Placeholder for logic to scrape the URL and visualize the data
-    # This will be implemented in the backend scraper script
-    st.write("Scraping initiated for URL:", url_input)
-    # TODO: Call the backend scraper function with the provided URL
-    # TODO: Retrieve data from Neo4j and visualize
+    if url_input:
+        # Call the backend scraper function with the provided URL
+        scrape_url(url_input)
+        st.success(f"Scraping completed for URL: {url_input}")
+        # Retrieve data from Neo4j and visualize
+        data = get_data_from_neo4j(url_input)
+        visualize_data(data)
+    else:
+        st.error("Please enter a URL to scrape.")
 
 # Function to retrieve data from Neo4j and visualize
 def get_data_from_neo4j(url):
     with driver.session() as session:
         # Cypher query to retrieve nodes and relationships
         result = session.run("MATCH (n)-[r]->(m) WHERE n.url = $url RETURN n, r, m", url=url)
-        # TODO: Process the result and prepare for visualization
-        # TODO: Visualize the data using Streamlit components
-        pass
+        # Process the result and prepare for visualization
+        nodes = []
+        edges = []
+        for record in result:
+            nodes.append(record['n'])
+            edges.append({'source': record['n']['url'], 'target': record['m']['url']})
+        return nodes, edges
 
-# Placeholder for the graph visualization component
-# TODO: Implement the logic to visualize the data using Streamlit components
-graph_placeholder = st.empty()
+# Function to visualize the data using Streamlit components
+def visualize_data(data):
+    nodes, edges = data
+    # Use pyvis for graph visualization
+    from pyvis.network import Network
+    net = Network(height='100%', width='100%', bgcolor='#222222', font_color='white')
+
+    # Add nodes and edges to the network
+    for node in nodes:
+        net.add_node(node['id'], label=node['title'], title=node['url'])
+    for edge in edges:
+        net.add_edge(edge['source'], edge['target'])
+
+    # Generate and display the network
+    net.show('graph.html')
+    HtmlFile = open('graph.html', 'r', encoding='utf-8')
+    source_code = HtmlFile.read()
+    components.html(source_code, height=600)
 
 # Additional Streamlit components as needed for the app functionality
 # TODO: Add components for displaying additional information, settings, etc.
