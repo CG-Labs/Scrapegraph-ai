@@ -287,6 +287,7 @@ class AbstractGraph(ABC):
             print(f"embedder_config: {embedder_config}")  # Debugging output
             print(f"models_tokens: {models_tokens}")  # Debugging output
             model_name = embedder_config["model"]
+            print(f"Checking if model '{model_name}' is in models_tokens['gemini']: {model_name in models_tokens['gemini']}")  # Additional debugging output
             if model_name in models_tokens["gemini"]:
                 self.model_token = models_tokens["gemini"][model_name]
                 return GoogleGenerativeAIEmbeddings(google_api_key=embedder_config['api_key'],
