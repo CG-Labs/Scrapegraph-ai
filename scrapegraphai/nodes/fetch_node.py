@@ -1,10 +1,11 @@
-""" 
+"""
 FetchNode Module
 """
 
 import json
 import requests
 from typing import List, Optional
+import asyncio
 
 import pandas as pd
 from langchain_community.document_loaders import PyPDFLoader
@@ -92,7 +93,7 @@ class FetchNode(BaseNode):
             ]
             state.update({self.output[0]: compressed_document})
             return state
-        
+
         # handling for pdf
         elif input_keys[0] == "pdf":
             loader = PyPDFLoader(source)
@@ -108,7 +109,7 @@ class FetchNode(BaseNode):
             ]
             state.update({self.output[0]: compressed_document})
             return state
-        
+
         elif input_keys[0] == "json":
             f = open(source)
             compressed_document = [
@@ -116,7 +117,7 @@ class FetchNode(BaseNode):
             ]
             state.update({self.output[0]: compressed_document})
             return state
-        
+
         elif input_keys[0] == "xml":
             with open(source, "r", encoding="utf-8") as f:
                 data = f.read()
@@ -125,7 +126,7 @@ class FetchNode(BaseNode):
             ]
             state.update({self.output[0]: compressed_document})
             return state
-        
+
         elif self.input == "pdf_dir":
             pass
 
@@ -135,14 +136,14 @@ class FetchNode(BaseNode):
             compressed_document = [Document(page_content=parsed_content,
                                             metadata={"source": "local_dir"}
                                            )]
-        
+
         elif self.useSoup:
             response = requests.get(source)
             if response.status_code == 200:
                 title, minimized_body, link_urls, image_urls = cleanup_html(response.text, source)
                 parsed_content = f"Title: {title}, Body: {minimized_body}, Links: {link_urls}, Images: {image_urls}"
                 compressed_document = [Document(page_content=parsed_content)]
-            else:	
+            else:
                 print(f"Failed to retrieve contents from the webpage at url: {source}")
 
         else:
@@ -151,12 +152,21 @@ class FetchNode(BaseNode):
             if self.node_config is not None:
                 loader_kwargs = self.node_config.get("loader_kwargs", {})
 
-            loader = ChromiumLoader([source], headless=self.headless, **loader_kwargs)
-            document = loader.load()
-            
-            title, minimized_body, link_urls, image_urls = cleanup_html(str(document[0].page_content), source)
+            # Asynchronously load content from the URL using ChromiumLoader
+            async def load_content():
+                loader = ChromiumLoader([source], headless=self.headless, **loader_kwargs)
+                async for document in loader.alazy_load():
+                    return document
+
+            # Run the asynchronous load_content function and wait for the result
+            loop = asyncio.get_event_loop()
+            document = loop.run_until_complete(load_content())
+
+            # Process the fetched content
+            title, minimized_body, link_urls, image_urls = cleanup_html(str(document.page_content), source)
             parsed_content = f"Title: {title}, Body: {minimized_body}, Links: {link_urls}, Images: {image_urls}"
-            
+
+            # Update the state with the fetched content
             compressed_document = [
                 Document(page_content=parsed_content, metadata={"source": source})
             ]
