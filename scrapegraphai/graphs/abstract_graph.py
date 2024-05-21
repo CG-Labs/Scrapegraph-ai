@@ -129,10 +129,11 @@ class AbstractGraph(ABC):
 
         # Instantiate the language model based on the model name
         if "gpt-" in llm_params["model"]:
-            try:
-                self.model_token = models_tokens["openai"][llm_params["model"]]
-            except KeyError as exc:
-                raise KeyError("Model not supported") from exc
+            model_name = llm_params["model"]
+            if model_name not in models_tokens["openai"]:
+                available_models = list(models_tokens["openai"].keys())
+                raise ValueError(f"Model '{model_name}' is not supported. Available models: {available_models}")
+            self.model_token = models_tokens["openai"][model_name]
             return OpenAI(llm_params)
 
         elif "azure" in llm_params["model"]:
@@ -289,16 +290,9 @@ class AbstractGraph(ABC):
                 raise KeyError("Model not supported")from exc
             return HuggingFaceHubEmbeddings(model=embedder_config["model"])
         elif "gemini" in embedder_config["model"]:
-            # Extract the actual model name by removing any prefixes or paths
-            model_name = embedder_config["model"].split('/')[-1]  # Keep only the last part after '/'
-            # Debugging: Log the processed model name and available models
-            print(f"Processed model name: {model_name}")
-            print(f"Available 'gemini' models: {list(models_tokens['gemini'].keys())}")
-            # Check if the processed model name is in the models_tokens dictionary
-            if model_name in models_tokens["gemini"]:
-                self.model_token = models_tokens["gemini"][model_name]
-                return GoogleGenerativeAIEmbeddings(google_api_key=embedder_config['api_key'],
-                                                    model=model_name)
+            # Check if the model is supported or set a default token value
+            if embedder_config["model"] in models_tokens.get("gemini", {}):
+                self.model_token = models_tokens["gemini"][embedder_config["model"]]
             else:
                 # If the model name is not found, raise a ValueError with detailed information
                 available_models = list(models_tokens['gemini'].keys())

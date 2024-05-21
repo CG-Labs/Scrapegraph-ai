@@ -1,8 +1,10 @@
 import streamlit as st
 from neo4j import GraphDatabase
 import sys
+import json
 sys.path.append('/home/ubuntu/Scrapegraph-ai')  # Ensure scraper.py is findable
 from scraper import scrape_url  # Import the scrape_url function
+from fetch_neo4j_data import fetch_data  # Import the fetch_data function
 
 # Neo4j connection details
 NEO4J_URI = "neo4j://localhost:7687"
@@ -21,49 +23,37 @@ st.title("Cyclone-G Web Scraper Visualization")
 # User input to enter the URL to be scraped
 url_input = st.text_input("Enter the URL to scrape", "")
 
+# Function to visualize the data using Streamlit components
+def visualize_data(data):
+    # Convert data to JSON format for JavaScript compatibility
+    data_json = json.dumps(data)
+
+    # Load the D3.js visualization script
+    st.markdown("""
+        <div id="graph"></div>
+        <script src="/static/gource_like_visualization.js"></script>
+        <script>
+            updateVisualization(%s);
+        </script>
+    """ % data_json, unsafe_allow_html=True)
+
 # Button to initiate the scraping process
 if st.button("Scrape URL"):
     if url_input:
-        # Call the backend scraper function with the provided URL
-        scrape_url(url_input)
-        st.success(f"Scraping completed for URL: {url_input}")
-        # Retrieve data from Neo4j and visualize
-        data = get_data_from_neo4j(url_input)
-        visualize_data(data)
+        try:
+            # Call the backend scraper function with the provided URL
+            scrape_url(url_input)
+            st.success(f"Scraping completed for URL: {url_input}")
+            # Retrieve data from Neo4j and visualize
+            data = fetch_data(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD, """
+                MATCH (n)-[r]->(m)
+                RETURN n.url AS nodeUrl, n.name AS nodeName, m.url AS targetUrl, m.name AS targetName, r.type AS relationshipType
+            """)
+            visualize_data(data)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
     else:
         st.error("Please enter a URL to scrape.")
-
-# Function to retrieve data from Neo4j and visualize
-def get_data_from_neo4j(url):
-    with driver.session() as session:
-        # Cypher query to retrieve nodes and relationships
-        result = session.run("MATCH (n)-[r]->(m) WHERE n.url = $url RETURN n, r, m", url=url)
-        # Process the result and prepare for visualization
-        nodes = []
-        edges = []
-        for record in result:
-            nodes.append(record['n'])
-            edges.append({'source': record['n']['url'], 'target': record['m']['url']})
-        return nodes, edges
-
-# Function to visualize the data using Streamlit components
-def visualize_data(data):
-    nodes, edges = data
-    # Use pyvis for graph visualization
-    from pyvis.network import Network
-    net = Network(height='100%', width='100%', bgcolor='#222222', font_color='white')
-
-    # Add nodes and edges to the network
-    for node in nodes:
-        net.add_node(node['id'], label=node['title'], title=node['url'])
-    for edge in edges:
-        net.add_edge(edge['source'], edge['target'])
-
-    # Generate and display the network
-    net.show('graph.html')
-    HtmlFile = open('graph.html', 'r', encoding='utf-8')
-    source_code = HtmlFile.read()
-    components.html(source_code, height=600)
 
 # Additional Streamlit components as needed for the app functionality
 # TODO: Add components for displaying additional information, settings, etc.

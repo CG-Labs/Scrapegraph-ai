@@ -15,6 +15,10 @@ Just say which information you want to extract and the library will do it for yo
   <img src="https://raw.githubusercontent.com/VinciGit00/Scrapegraph-ai/main/docs/assets/scrapegraphai_logo.png" alt="Scrapegraph-ai Logo" style="width: 50%;">
 </p>
 
+Cyclone-G is an advanced web scraping tool designed to navigate and analyze the structure of large websites and groups of websites. It crawls through web pages and documents, establishing connections based on the content and context found within. The scraped data is saved into a Neo4j database, allowing for complex queries and analysis. Additionally, Cyclone-G retains a graph of the crawl path, enabling users to trace the journey through the web's interconnected spaces. This tool is particularly useful for large-scale data mining and competitive intelligence.
+
+The interface for Cyclone-G is built using Streamlit, providing a user-friendly and interactive way to visualize the data and the crawl paths, inspired by the visual style of Gource. Whether you're dealing with a single website or a vast network of sites, Cyclone-G equips you with the insights needed to understand and leverage the underlying data structure.
+
 ## 🚀 Quick install
 
 The reference page for Scrapegraph-ai is available on the official page of pypy: [pypi](https://pypi.org/project/scrapegraphai/).
