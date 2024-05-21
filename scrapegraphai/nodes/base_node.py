@@ -1,4 +1,4 @@
-""" 
+"""
 BaseNode Module
 """
 
@@ -14,10 +14,10 @@ class BaseNode(ABC):
     Attributes:
         node_name (str): The unique identifier name for the node.
         input (str): Boolean expression defining the input keys needed from the state.
-        output (List[str]): List of 
+        output (List[str]): List of
         min_input_len (int): Minimum required number of input keys.
         node_config (Optional[dict]): Additional configuration for the node.
-    
+
     Args:
         node_name (str): Name for identifying the node.
         node_type (str): Type of the node; must be 'node' or 'conditional_node'.
@@ -28,7 +28,7 @@ class BaseNode(ABC):
 
     Raises:
         ValueError: If `node_type` is not one of the allowed types.
-    
+
     Example:
         >>> class MyNode(BaseNode):
         ...     def execute(self, state):
@@ -96,6 +96,8 @@ class BaseNode(ABC):
         Raises:
             ValueError: If error occurs in parsing input keys.
         """
+        print(f"Current state: {state}")  # Log the current state
+        print(f"Input expression: {self.input}")  # Log the input expression
 
         try:
             input_keys = self._parse_input_keys(state, self.input)
@@ -191,7 +193,7 @@ class BaseNode(ABC):
         # Helper function to evaluate expressions with parentheses
         def evaluate_expression(expression: str) -> List[str]:
             """Evaluate an expression with parentheses."""
-            
+
             while '(' in expression:
                 start = expression.rfind('(')
                 end = expression.find(')', start)
