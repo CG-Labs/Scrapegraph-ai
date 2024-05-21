@@ -31,6 +31,7 @@ def visualize_data(data):
     # Load the D3.js visualization script
     st.markdown("""
         <div id="graph"></div>
+        <script src="https://d3js.org/d3.v6.min.js"></script>
         <script src="/static/gource_like_visualization.js"></script>
         <script>
             updateVisualization(%s);
