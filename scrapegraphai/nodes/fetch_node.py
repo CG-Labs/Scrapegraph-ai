@@ -92,6 +92,7 @@ class FetchNode(BaseNode):
                 Document(page_content=source, metadata={"source": "local_dir"})
             ]
             state.update({self.output[0]: compressed_document})
+            print(f"State updated with 'doc': {compressed_document}")
             return state
 
         # handling for pdf
@@ -99,6 +100,7 @@ class FetchNode(BaseNode):
             loader = PyPDFLoader(source)
             compressed_document = loader.load()
             state.update({self.output[0]: compressed_document})
+            print(f"State updated with 'doc': {compressed_document}")
             return state
 
         elif input_keys[0] == "csv":
@@ -108,6 +110,7 @@ class FetchNode(BaseNode):
                 )
             ]
             state.update({self.output[0]: compressed_document})
+            print(f"State updated with 'doc': {compressed_document}")
             return state
 
         elif input_keys[0] == "json":
@@ -116,6 +119,7 @@ class FetchNode(BaseNode):
                 Document(page_content=str(json.load(f)), metadata={"source": "json"})
             ]
             state.update({self.output[0]: compressed_document})
+            print(f"State updated with 'doc': {compressed_document}")
             return state
 
         elif input_keys[0] == "xml":
@@ -171,4 +175,5 @@ class FetchNode(BaseNode):
             ]
 
         state.update({self.output[0]: compressed_document, self.output[1]: link_urls, self.output[2]: image_urls})
+        print(f"State updated with 'doc': {compressed_document}, 'link_urls': {link_urls}, 'img_urls': {image_urls}")
         return state
