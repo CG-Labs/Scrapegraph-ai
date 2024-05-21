@@ -2,6 +2,11 @@ import streamlit as st
 from neo4j import GraphDatabase
 import sys
 import json
+from dotenv import load_dotenv  # Import the load_dotenv function from python-dotenv
+
+# Load the environment variables from the .env file
+load_dotenv()
+
 sys.path.append('/home/ubuntu/Scrapegraph-ai')  # Ensure scraper.py is findable
 from scraper import scrape_url  # Import the scrape_url function
 from fetch_neo4j_data import fetch_data  # Import the fetch_data function

@@ -1,7 +1,3 @@
-"""
-ParseNode Module
-"""
-
 from typing import List, Optional
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_transformers import Html2TextTransformer
@@ -10,10 +6,10 @@ from .base_node import BaseNode
 
 class ParseNode(BaseNode):
     """
-    A node responsible for parsing HTML content from a document. 
+    A node responsible for parsing HTML content from a document.
     The parsed content is split into chunks for further processing.
 
-    This node enhances the scraping workflow by allowing for targeted extraction of 
+    This node enhances the scraping workflow by allowing for targeted extraction of
     content, thereby optimizing the processing of large HTML documents.
 
     Attributes:
@@ -55,7 +51,10 @@ class ParseNode(BaseNode):
         input_keys = self.get_input_keys(state)
 
         # Fetching data from the state based on the input keys
-        input_data = [state[key] for key in input_keys]
+        try:
+            input_data = [state[key] for key in input_keys]
+        except KeyError as e:
+            raise KeyError(f"Expected key {e} not found in the state. Ensure the state is properly initialized with the required keys.")
 
         text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=self.node_config.get("chunk_size", 4096),
@@ -70,7 +69,7 @@ class ParseNode(BaseNode):
         docs_transformed = docs_transformed[0]
 
         chunks = text_splitter.split_text(docs_transformed.page_content)
-    
+
         state.update({self.output[0]: chunks})
 
         return state
