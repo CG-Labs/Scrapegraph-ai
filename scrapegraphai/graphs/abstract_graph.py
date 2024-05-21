@@ -297,8 +297,7 @@ class AbstractGraph(ABC):
                 # If the model name is not found, raise a ValueError with detailed information
                 available_models = list(models_tokens['gemini'].keys())
                 error_message = (
-                    f"Model '{model_name}' is not supported. "
-                    f"Received model name: '{embedder_config['model']}'. "
+                    f"Model '{embedder_config['model']}' is not supported. "
                     f"Expected one of the available 'gemini' models: {available_models}"
                 )
                 print(error_message)  # Log the detailed error message
@@ -311,6 +310,12 @@ class AbstractGraph(ABC):
             except KeyError as exc:
                 raise KeyError("Model not supported") from exc
             return BedrockEmbeddings(client=client, model_id=embedder_config["model"])
+        elif "models/embedding-001" in embedder_config["model"]:
+            # Assuming 'models/embedding-001' is a valid model, we set a default token value
+            # This is a placeholder and should be replaced with the actual token if necessary
+            self.model_token = 2048
+            return GoogleGenerativeAIEmbeddings(google_api_key=embedder_config['api_key'],
+                                                model="models/embedding-001")
         else:
             raise ValueError(
                 "Model provided by the configuration not supported")
