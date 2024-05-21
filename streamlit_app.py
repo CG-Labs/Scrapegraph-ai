@@ -3,9 +3,13 @@ from neo4j import GraphDatabase
 import sys
 import json
 from dotenv import load_dotenv  # Import the load_dotenv function from python-dotenv
+import os
 
 # Load the environment variables from the .env file
 load_dotenv()
+
+# Retrieve the OPENAI_API_KEY from the environment variables
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 sys.path.append('/home/ubuntu/Scrapegraph-ai')  # Ensure scraper.py is findable
 from scraper import scrape_url  # Import the scrape_url function
