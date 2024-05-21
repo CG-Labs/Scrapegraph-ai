@@ -20,7 +20,7 @@ class ScriptCreatorGraph(AbstractGraph):
         source (str): The source of the graph.
         config (dict): Configuration parameters for the graph.
         llm_model: An instance of a language model client, configured for generating answers.
-        embedder_model: An instance of an embedding model client, 
+        embedder_model: An instance of an embedding model client,
         configured for generating embeddings.
         verbose (bool): A flag indicating whether to show print statements during execution.
         headless (bool): A flag indicating whether to run the graph in headless mode.
@@ -99,6 +99,8 @@ class ScriptCreatorGraph(AbstractGraph):
         """
 
         inputs = {"user_prompt": self.prompt, self.input_key: self.source}
+        print(f"Initial state before graph execution: {inputs}")  # Debug: Log the initial state
         self.final_state, self.execution_info = self.graph.execute(inputs)
+        print(f"Final state after graph execution: {self.final_state}")  # Debug: Log the final state
 
         return self.final_state.get("answer", "No answer found ")
