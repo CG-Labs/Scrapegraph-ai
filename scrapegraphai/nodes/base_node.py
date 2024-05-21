@@ -209,7 +209,9 @@ class BaseNode(ABC):
 
         result = evaluate_expression(expression)
 
+        # Log the state and expression before raising an error
         if not result:
+            print(f"No keys matched the expression. State: {state}, Expression: {expression}")
             raise ValueError("No state keys matched the expression.")
 
         # Remove redundant state keys from the result, without changing their order
