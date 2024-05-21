@@ -58,7 +58,7 @@ class FetchNode(BaseNode):
             {} if node_config is None else node_config.get("loader_kwargs", {})
         )
 
-    def execute(self, state):
+    async def execute(self, state):
         """
         Executes the node's logic to fetch HTML content from a specified URL and
         update the state with this content.
@@ -158,9 +158,8 @@ class FetchNode(BaseNode):
                 async for document in loader.alazy_load():
                     return document
 
-            # Run the asynchronous load_content function and wait for the result
-            loop = asyncio.get_event_loop()
-            document = loop.run_until_complete(load_content())
+            # Schedule the asynchronous load_content coroutine and wait for the result
+            document = await asyncio.create_task(load_content())
 
             # Process the fetched content
             title, minimized_body, link_urls, image_urls = cleanup_html(str(document.page_content), source)
