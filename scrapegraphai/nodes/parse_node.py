@@ -53,6 +53,7 @@ class ParseNode(BaseNode):
         # Fetching data from the state based on the input keys
         try:
             input_data = [state[key] for key in input_keys]
+            print(f"ParseNode received the following input data from state: {input_data}")  # Debug: Log the received input data
         except KeyError as e:
             raise KeyError(f"Expected key {e} not found in the state. Ensure the state is properly initialized with the required keys.")
 
@@ -69,6 +70,7 @@ class ParseNode(BaseNode):
         docs_transformed = docs_transformed[0]
 
         chunks = text_splitter.split_text(docs_transformed.page_content)
+        print(f"ParseNode updated the state with the following chunks: {chunks}")  # Debug: Log the chunks added to the state
 
         state.update({self.output[0]: chunks})
 
