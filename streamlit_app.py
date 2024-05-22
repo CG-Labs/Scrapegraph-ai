@@ -41,7 +41,7 @@ def visualize_data(data):
     st.markdown("""
         <div id="graph"></div>
         <script src="https://d3js.org/d3.v6.min.js"></script>
-        <script src="/home/ubuntu/Scrapegraph-ai/gource_like_visualization.js"></script>
+        <script src="/static/gource_like_visualization.js"></script>
         <script>
             // Call the updateVisualization function with the data
             updateVisualization(%s);
