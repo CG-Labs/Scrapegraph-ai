@@ -1,7 +1,8 @@
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 from scrapegraphai.graphs import OmniScraperGraph
 from neo4j import GraphDatabase
 import os
+import asyncio
 
 # Securely retrieved secrets for database connection and API key
 NEO4J_URI = "neo4j://localhost:7687"
@@ -12,31 +13,33 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # Securely retrieved API key for O
 # Debugging: Print the OPENAI_API_KEY to ensure it's being retrieved correctly
 print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
 
-def scrape_url(url):
+async def scrape_url(url):
     # Debugging: Confirming that the scrape_url function is being called
     print(f"Starting scrape_url function for URL: {url}")
 
-    with sync_playwright() as p:
+    async with async_playwright() as p:
         # Launch the browser in headless mode
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
 
         # Navigate to the URL
-        page.goto(url)
+        await page.goto(url)
 
         # Extract the content of the page
-        content = page.content()
+        content = await page.content()
 
         # Analyze the content with Scrapegraph-ai
-        analyzed_data = analyze_content_with_scrapegraph_ai(content)
-
-        # Save data to Neo4j
-        save_data_to_neo4j(analyzed_data)
+        try:
+            analyzed_data = await analyze_content_with_scrapegraph_ai(content)
+            # Save data to Neo4j
+            await save_data_to_neo4j(analyzed_data)
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
         # Close the browser
-        browser.close()
+        await browser.close()
 
-def analyze_content_with_scrapegraph_ai(content):
+async def analyze_content_with_scrapegraph_ai(content):
     # Initialize OmniScraperGraph with necessary models and API keys
     graph_config = {
         "llm": {
@@ -60,10 +63,10 @@ def analyze_content_with_scrapegraph_ai(content):
         config=graph_config
     )
 
-    result = omni_scraper_graph.run()
+    result = await omni_scraper_graph.run()
     return result
 
-def save_data_to_neo4j(data):
+async def save_data_to_neo4j(data):
     # Function to save data to Neo4j
     driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
@@ -107,4 +110,7 @@ def create_link_relationship(tx, from_url, to_url):
 
 # Placeholder URL for testing
 test_url = 'http://example.com'
-scrape_url(test_url)
+
+if __name__ == "__main__":
+    # Run the scrape_url function as an asynchronous task
+    asyncio.run(scrape_url(test_url))
