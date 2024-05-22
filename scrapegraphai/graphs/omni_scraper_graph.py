@@ -117,7 +117,7 @@ class OmniScraperGraph(AbstractGraph):
             entry_point=fetch_node
         )
 
-    def run(self) -> str:
+    async def run(self) -> str:
         """
         Executes the scraping process and returns the answer to the prompt.
 
@@ -127,7 +127,7 @@ class OmniScraperGraph(AbstractGraph):
 
         inputs = {"user_prompt": self.prompt, self.input_key: self.source}
         print(f"Initial state before FetchNode execution: {inputs}")  # Debug: Log the initial state
-        self.final_state, self.execution_info = self.graph.execute(inputs)
+        self.final_state, self.execution_info = await self.graph.execute(inputs)
         print(f"Final state after FetchNode execution: {self.final_state}")  # Debug: Log the final state
         # Additional debug: Log the state after FetchNode execution
         if 'doc' in self.final_state:
