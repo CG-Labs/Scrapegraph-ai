@@ -28,12 +28,18 @@ async def scrape_url(url):
 
         # Extract the content of the page
         content = await page.content()
+        # Debugging: Print the extracted content
+        print(f"Extracted content: {content[:500]}...")  # Print the first 500 characters of the content
 
         # Analyze the content with Scrapegraph-ai
         try:
             analyzed_data = await analyze_content_with_scrapegraph_ai(content)
+            # Debugging: Print the analyzed data
+            print(f"Analyzed data: {analyzed_data}")
             # Save data to Neo4j
             save_success = await save_data_to_neo4j(analyzed_data)
+            # Debugging: Print the result of the save operation
+            print(f"Data save success: {save_success}")
             if save_success:
                 scrape_data = analyzed_data
         except Exception as e:
