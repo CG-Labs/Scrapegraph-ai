@@ -53,13 +53,10 @@ if st.button("Scrape URL"):
     if url_input:
         try:
             # Call the backend scraper function with the provided URL
-            scrape_url(url_input)
+            scrape_result = scrape_url(url_input)
             st.success(f"Scraping completed for URL: {url_input}")
             # Retrieve data from Neo4j and visualize
-            data = fetch_data(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD, """
-                MATCH (n)-[r]->(m)
-                RETURN n.url AS nodeUrl, n.name AS nodeName, m.url AS targetUrl, m.name AS targetName, r.type AS relationshipType
-            """)
+            data = fetch_data(driver, scrape_result)
             visualize_data(data)
         except Exception as e:
             st.error(f"An error occurred: {e}")

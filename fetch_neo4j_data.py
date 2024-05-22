@@ -4,15 +4,8 @@ from neo4j import GraphDatabase
 
 class Neo4jConnection:
 
-    def __init__(self, uri, user, pwd):
-        self.__uri = uri
-        self.__user = user
-        self.__pwd = pwd
-        self.__driver = None
-        try:
-            self.__driver = GraphDatabase.driver(self.__uri, auth=(self.__user, self.__pwd))
-        except Exception as e:
-            print("Failed to create the driver:", e)
+    def __init__(self, driver):
+        self.__driver = driver
 
     def close(self):
         if self.__driver is not None:
@@ -32,9 +25,16 @@ class Neo4jConnection:
                 session.close()
         return response
 
-def fetch_data(uri, user, pwd, query, parameters=None, db=None):
-    conn = Neo4jConnection(uri, user, pwd)
+def fetch_data(driver, scrape_result, db=None):
+    conn = Neo4jConnection(driver)
     try:
+        # Construct the query using the scrape_result
+        query = """
+        MATCH (n)-[r]->(m)
+        WHERE n.url = $url
+        RETURN n.url AS nodeUrl, n.name AS nodeName, m.url AS targetUrl, m.name AS targetName, r.type AS relationshipType
+        """
+        parameters = {'url': scrape_result['url']}
         results = conn.query(query, parameters, db)
         nodes = []
         links = []
@@ -54,12 +54,7 @@ def fetch_data(uri, user, pwd, query, parameters=None, db=None):
 
 # Example usage:
 if __name__ == "__main__":
-    uri = "neo4j://localhost:7687"
-    user = "neo4j"
-    pwd = "neo4j12345"
-    query = """
-    MATCH (n)-[r]->(m)
-    RETURN n.url AS nodeUrl, n.name AS nodeName, m.url AS targetUrl, m.name AS targetName, r.type AS relationshipType
-    """
-    data = fetch_data(uri, user, pwd, query)
+    driver = GraphDatabase.driver("neo4j://localhost:7687", auth=("neo4j", "neo4j12345"))
+    scrape_result = {'url': 'https://example.com'}
+    data = fetch_data(driver, scrape_result)
     print(data)
