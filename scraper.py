@@ -9,6 +9,7 @@ NEO4J_URI = "neo4j://localhost:7687"
 NEO4J_USER = "neo4j"  # Actual username for Neo4j
 NEO4J_PASSWORD = "neo4j12345"  # Actual password for Neo4j
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # Securely retrieved API key for OpenAI
+GROQ_API_KEY = os.getenv('GROQ_API_KEY')  # Securely retrieved API key for GROQ
 
 # Debugging: Print the OPENAI_API_KEY to ensure it's being retrieved correctly
 print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
@@ -57,11 +58,15 @@ async def analyze_content_with_scrapegraph_ai(content):
             "model": "gpt-3.5-turbo",
             "temperature": 0,
             "format": "json",
-            "api_key": OPENAI_API_KEY
+            "api_key": OPENAI_API_KEY  # Assuming this is for OpenAI's GPT models
         },
         "embeddings": {
-            "model": "models/embedding-001",  # Updated to a supported embeddings model
+            "model": "models/embedding-001",  # Assuming this is for OpenAI's embeddings
             "api_key": OPENAI_API_KEY
+        },
+        "groq": {
+            "model": "langchain-google-genai",  # Placeholder for the actual model name if different
+            "api_key": GROQ_API_KEY  # API key for GROQ's langchain-google-genai package
         },
         "verbose": True,
         "headless": True,
