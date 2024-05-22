@@ -65,7 +65,7 @@ async def analyze_content_with_scrapegraph_ai(content):
             "api_key": OPENAI_API_KEY
         },
         "groq": {
-            "model": "langchain-google-genai",  # Placeholder for the actual model name if different
+            "model": "models/text-bison-001",  # Correct model name for Google's generative AI
             "api_key": GROQ_API_KEY  # API key for GROQ's langchain-google-genai package
         },
         "verbose": True,
