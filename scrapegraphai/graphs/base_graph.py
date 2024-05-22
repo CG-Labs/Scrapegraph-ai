@@ -4,6 +4,7 @@ BaseGraph Module
 
 import time
 import warnings
+import asyncio
 from langchain_community.callbacks import get_openai_callback
 from typing import Tuple
 
@@ -71,7 +72,7 @@ class BaseGraph:
             edge_dict[from_node.node_name] = to_node.node_name
         return edge_dict
 
-    def execute(self, initial_state: dict) -> Tuple[dict, list]:
+    async def execute(self, initial_state: dict) -> Tuple[dict, list]:
         """
         Executes the graph by traversing nodes starting from the entry point. The execution
         follows the edges based on the result of each node's execution and continues until
@@ -104,7 +105,11 @@ class BaseGraph:
             current_node = index
 
             with get_openai_callback() as cb:
-                result = current_node.execute(state)
+                # Check if the execute method is a coroutine and await it if necessary
+                if asyncio.iscoroutinefunction(current_node.execute):
+                    result = await current_node.execute(state)
+                else:
+                    result = current_node.execute(state)
                 node_exec_time = time.time() - curr_time
                 total_exec_time += node_exec_time
 
