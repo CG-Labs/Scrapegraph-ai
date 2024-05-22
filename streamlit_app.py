@@ -4,6 +4,7 @@ import sys
 import json
 from dotenv import load_dotenv  # Import the load_dotenv function from python-dotenv
 import os
+import asyncio
 
 # Load the environment variables from the .env file
 load_dotenv()
@@ -53,11 +54,19 @@ if st.button("Scrape URL"):
     if url_input:
         try:
             # Call the backend scraper function with the provided URL
-            scrape_result = scrape_url(url_input)
-            st.success(f"Scraping completed for URL: {url_input}")
-            # Retrieve data from Neo4j and visualize
-            data = fetch_data(driver, scrape_result)
-            visualize_data(data)
+            # The scrape_url function is asynchronous, so we need to run it in an event loop
+            scrape_result = asyncio.run(scrape_url(url_input))
+            if scrape_result is None:
+                # If scrape_result is None, display an error message and do not proceed
+                st.error("Scraping returned no data. Please check the URL and try again.")
+            else:
+                st.success(f"Scraping completed for URL: {url_input}")
+                # Retrieve data from Neo4j and visualize
+                data = fetch_data(driver, scrape_result)
+                if data:
+                    visualize_data(data)
+                else:
+                    st.error("No data found to visualize. Please check the Neo4j database connection and data.")
         except Exception as e:
             st.error(f"An error occurred: {e}")
     else:
