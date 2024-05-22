@@ -129,5 +129,10 @@ class OmniScraperGraph(AbstractGraph):
         print(f"Initial state before FetchNode execution: {inputs}")  # Debug: Log the initial state
         self.final_state, self.execution_info = self.graph.execute(inputs)
         print(f"Final state after FetchNode execution: {self.final_state}")  # Debug: Log the final state
+        # Additional debug: Log the state after FetchNode execution
+        if 'doc' in self.final_state:
+            print(f"'doc' key found in state after FetchNode execution: {self.final_state['doc']}")
+        else:
+            print("Error: 'doc' key not found in state after FetchNode execution.")
 
         return self.final_state.get("answer", "No answer found.")
