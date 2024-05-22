@@ -16,6 +16,7 @@ print(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
 async def scrape_url(url):
     # Debugging: Confirming that the scrape_url function is being called
     print(f"Starting scrape_url function for URL: {url}")
+    scrape_data = None
 
     async with async_playwright() as p:
         # Launch the browser in headless mode
@@ -32,12 +33,16 @@ async def scrape_url(url):
         try:
             analyzed_data = await analyze_content_with_scrapegraph_ai(content)
             # Save data to Neo4j
-            await save_data_to_neo4j(analyzed_data)
+            save_success = await save_data_to_neo4j(analyzed_data)
+            if save_success:
+                scrape_data = analyzed_data
         except Exception as e:
             print(f"An error occurred: {e}")
 
         # Close the browser
         await browser.close()
+
+    return scrape_data
 
 async def analyze_content_with_scrapegraph_ai(content):
     # Initialize OmniScraperGraph with necessary models and API keys
@@ -69,18 +74,24 @@ async def analyze_content_with_scrapegraph_ai(content):
 async def save_data_to_neo4j(data):
     # Function to save data to Neo4j
     driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+    save_success = False
 
     with driver.session() as session:
-        for page in data['pages']:
-            session.write_transaction(create_page_node, page)
+        try:
+            for page in data['pages']:
+                session.write_transaction(create_page_node, page)
 
-        for document in data['documents']:
-            session.write_transaction(create_document_node, document)
+            for document in data['documents']:
+                session.write_transaction(create_document_node, document)
 
-        for link in data['links']:
-            session.write_transaction(create_link_relationship, link['from'], link['to'])
+            for link in data['links']:
+                session.write_transaction(create_link_relationship, link['from'], link['to'])
+            save_success = True
+        except Exception as e:
+            print(f"An error occurred while saving to Neo4j: {e}")
 
     driver.close()
+    return save_success
 
 def create_page_node(tx, page):
     query = (
