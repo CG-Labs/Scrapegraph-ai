@@ -165,15 +165,23 @@ class FetchNode(BaseNode):
             # Schedule the asynchronous load_content coroutine and wait for the result
             document = await asyncio.create_task(load_content())
 
+            # Debug: Log the fetched document content
+            print(f"Fetched document content: {document.page_content}")
+
             # Process the fetched content
             title, minimized_body, link_urls, image_urls = cleanup_html(str(document.page_content), source)
             parsed_content = f"Title: {title}, Body: {minimized_body}, Links: {link_urls}, Images: {image_urls}"
+
+            # Debug: Log the parsed content before updating the state
+            print(f"Parsed content: {parsed_content}")
 
             # Update the state with the fetched content
             compressed_document = [
                 Document(page_content=parsed_content, metadata={"source": source})
             ]
 
-        state.update({self.output[0]: compressed_document, self.output[1]: link_urls, self.output[2]: image_urls})
-        print(f"State updated with 'doc': {compressed_document}, 'link_urls': {link_urls}, 'img_urls': {image_urls}")
-        return state
+            # Debug: Log the state update for 'doc', 'link_urls', and 'img_urls'
+            print(f"State update: 'doc': {compressed_document}, 'link_urls': {link_urls}, 'img_urls': {image_urls}")
+
+            state.update({self.output[0]: compressed_document, self.output[1]: link_urls, self.output[2]: image_urls})
+            return state
